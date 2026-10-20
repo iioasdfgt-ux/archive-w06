@@ -51,6 +51,7 @@
   }
   cards.forEach(function (c, i) {
     c.addEventListener('mouseenter', function () {
+      if (!c._pre) { c._pre = new Image(); c._pre.src = c.dataset.full; }   /* 올려 둔 사진 원본 미리 받기 */
       hover = i; hero.classList.add('ring-focus'); c.classList.add('is-on');
       capN.textContent = (i < 9 ? '0' : '') + (i + 1); capT.textContent = c.dataset.cap;
     });
@@ -61,7 +62,10 @@
   });
   /* 사진을 누르면 그 사진(원본)이 화면 전체에 깔리고 제목이 나온다 — 수정 전 첫 화면처럼. X(또는 Esc)로 고리로 돌아감 */
   function show(c) {
-    figImg.src = c.dataset.full;                          /* 카드와 같은 사진의 원본 */
+    /* 누른 카드 사진을 바로 깔고(예전 배너 사진이 먼저 보이지 않게), 큰 원본은 다 받은 뒤에 바꿔 끼움 */
+    var want = c.dataset.full; figImg.dataset.want = want;
+    figImg.removeAttribute('srcset'); figImg.src = c.querySelector('img').getAttribute('src');
+    var big = new Image(); big.onload = function () { if (figImg.dataset.want === want) figImg.src = want; }; big.src = want;
     figImg.style.objectPosition = c.style.getPropertyValue('--pos') || '50% 50%';   /* 얼굴·머리·해파리가 잘리지 않게 */
     figImg.alt = c.dataset.cap;
     srcEl.textContent = '사진 출처 — ' + c.dataset.src;   /* 그 사진의 출처(assets/CREDITS.tsv 기준) */
